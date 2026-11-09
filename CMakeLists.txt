@@ -29,12 +29,13 @@ if(PROJECT_IS_TOP_LEVEL)
     add_compile_definitions($<$<CONFIG:Debug>:_GLIBCXX_ASSERTIONS>)
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-include(CompilerWarnings)
-include(EmbedFiles)
+# By path, not through CMAKE_MODULE_PATH: a project that uses annokit may have modules of the same
+# names. As a subproject, annokit takes the sanitizer and coverage flags of the project around it.
+include("${PROJECT_SOURCE_DIR}/cmake/CompilerWarnings.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/EmbedFiles.cmake")
 if(PROJECT_IS_TOP_LEVEL)
-    include(Sanitizers)
-    include(Coverage)
+    include("${PROJECT_SOURCE_DIR}/cmake/Sanitizers.cmake")
+    include("${PROJECT_SOURCE_DIR}/cmake/Coverage.cmake")
 endif()
 
 option(ANNOKIT_BUILD_TESTS "Build the tests of annokit" ${PROJECT_IS_TOP_LEVEL})

@@ -5,9 +5,9 @@
 # with each file's name without its extension and its bytes (annokit/core/embedded_file.hpp).
 # Changing a file rebuilds the target.
 
-set(_annokit_embed_script "${CMAKE_CURRENT_LIST_DIR}/EmbedFiles.cmake")
-
 function(annokit_embed_files target namespace)
+    # This file, found from the function: a project that uses annokit calls it from its own folders.
+    set(_annokit_embed_script "${CMAKE_CURRENT_FUNCTION_LIST_FILE}")
     # One generated source per call: a target may embed several sets of files.
     string(MAKE_C_IDENTIFIER "${namespace}" set_name)
     set(output "${CMAKE_CURRENT_BINARY_DIR}/${target}_${set_name}_embedded.cpp")

@@ -17,6 +17,12 @@ target_link_libraries(annokit_tests PRIVATE annokit::core annokit::audio annokit
 target_include_directories(annokit_tests PRIVATE "${PROJECT_SOURCE_DIR}/modules/video/src")
 target_compile_definitions(annokit_tests PRIVATE ANNOKIT_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/data")
 annokit_set_warnings(annokit_tests)
+# Tests dereference results right after checking them; a null there crashes the test, which reports
+# it as failed. GCC's -Wnull-dereference flags such lines at -O2, so it stays on for the modules but
+# is off for the tests.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(annokit_tests PRIVATE -Wno-null-dereference)
+endif()
 
 add_test(NAME unit COMMAND annokit_tests)
 set_tests_properties(unit PROPERTIES SKIP_RETURN_CODE 77)
