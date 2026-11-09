@@ -48,9 +48,9 @@ private:
 
 struct WindowConfig {
     std::string title = "Window";
-    std::span<const std::uint8_t> icon_bmp;        ///< the window icon as a BMP file; empty: none
-    std::span<const std::uint8_t> icon_bmp_large;  ///< its HiDPI alternate; may be empty
-    std::int32_t width = 1280;                     ///< in window coordinates (may be scaled on HiDPI screens)
+    std::span<const std::uint8_t> icon_bmp = {};        ///< the window icon as a BMP file; empty: none
+    std::span<const std::uint8_t> icon_bmp_large = {};  ///< its HiDPI alternate; may be empty
+    std::int32_t width = 1280;                          ///< in window coordinates (may be scaled on HiDPI screens)
     std::int32_t height = 800;
     bool vsync = true;
     bool fullscreen = false;  ///< the whole screen at the desktop's resolution
