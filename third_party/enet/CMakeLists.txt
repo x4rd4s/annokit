@@ -48,8 +48,9 @@ else()
 endif()
 
 # protocol.c computes a field's offset as `&((ENetProtocolHeader *) 0)->sentTime`, which UBSan
-# reports as undefined; with -fno-sanitize-recover the first network test would stop there.
-if("undefined" IN_LIST ANNOKIT_SANITIZE AND NOT MSVC)
+# reports as undefined; with -fno-sanitize-recover the first network test would stop there. Always
+# off for ENet, also when a project around annokit turns UBSan on with its own option.
+if(NOT MSVC)
     target_compile_options(annokit_enet PRIVATE -fno-sanitize=undefined)
 endif()
 

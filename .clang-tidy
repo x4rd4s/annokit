@@ -25,4 +25,4 @@ Checks: >
   -clang-analyzer-optin.performance.Padding,
   -clang-analyzer-optin.core.EnumCastOutOfRange
 WarningsAsErrors: '*'
-HeaderFilterRegex: '.*/engine/.*'
+HeaderFilterRegex: '.*/modules/.*'
