@@ -33,6 +33,17 @@ if(ANNOKIT_BUILD_PLATFORM)
     add_executable(annokit_sdl_tests test_main.cpp sdl/test_audio_output.cpp)
     target_link_libraries(annokit_sdl_tests PRIVATE annokit::platform annokit::audio)
     annokit_set_warnings(annokit_sdl_tests)
+    if(WIN32)
+        # Windows finds DLLs next to the program: SDL3.dll goes there after every build. Without it
+        # the test would wait on Windows' "DLL not found" box instead of failing.
+        set(runtime_dlls $<TARGET_RUNTIME_DLLS:annokit_sdl_tests>)
+        add_custom_command(TARGET annokit_sdl_tests POST_BUILD
+            COMMAND "$<IF:$<BOOL:${runtime_dlls}>,${CMAKE_COMMAND};-E;copy_if_different;${runtime_dlls};$<TARGET_FILE_DIR:annokit_sdl_tests>,${CMAKE_COMMAND};-E;true>"
+            COMMAND_EXPAND_LISTS
+            VERBATIM)
+    endif()
     add_test(NAME sdl COMMAND annokit_sdl_tests)
-    set_tests_properties(sdl PROPERTIES SKIP_RETURN_CODE 77 ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_AUDIO_DRIVER=dummy")
+    # The tests take seconds; a hang fails after two minutes instead of using up the job.
+    set_tests_properties(sdl PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120
+                         ENVIRONMENT "SDL_VIDEO_DRIVER=dummy;SDL_AUDIO_DRIVER=dummy")
 endif()
