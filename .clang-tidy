@@ -1,0 +1,28 @@
+# Static analysis for modules/ (the CI job "clang-tidy"). The excluded checks flag deliberate code:
+# fixed-point and pixel arithmetic (integer division, narrow loop counters, widening casts), the
+# byte-sized enums and file record layouts, optionals checked by the line before, and
+# unchecked C library returns (fprintf and friends).
+Checks: >
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-narrowing-conversions,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-unchecked-optional-access,
+  -bugprone-too-small-loop-variable,
+  -bugprone-misplaced-widening-cast,
+  -bugprone-integer-division,
+  -bugprone-branch-clone,
+  performance-*,
+  -performance-enum-size,
+  -performance-move-const-arg,
+  -performance-inefficient-vector-operation,
+  concurrency-*,
+  -concurrency-mt-unsafe,
+  cert-err34-c,
+  cert-err52-cpp,
+  cert-err58-cpp,
+  cert-err60-cpp,
+  -clang-analyzer-optin.performance.Padding,
+  -clang-analyzer-optin.core.EnumCastOutOfRange
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*/modules/.*'
