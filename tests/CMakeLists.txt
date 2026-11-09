@@ -7,6 +7,7 @@ add_executable(annokit_tests
     unit/test_data_file_write.cpp
     unit/test_loopback.cpp
     unit/test_random.cpp
+    unit/test_resource_archive.cpp
     unit/test_script_sandbox.cpp
     unit/test_wav_mixer.cpp
     unit/test_webm.cpp
