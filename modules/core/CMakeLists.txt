@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Files, byte readers and writers, data files, text, hashes, compression, PNG and zip, Result, a
-# seeded random number generator. No dependencies besides the optional zlib.
+# Files, byte readers and writers, data files, text, hashes, compression, PNG, zip and resource
+# archives, Result, a seeded random number generator. No dependencies besides the optional zlib.
 
 add_library(annokit_core
     src/compress.cpp
@@ -9,6 +9,7 @@ add_library(annokit_core
     src/hash.cpp
     src/png_reader.cpp
     src/png_writer.cpp
+    src/resource_archive.cpp
     src/text.cpp
     src/zip_archive.cpp
 )
