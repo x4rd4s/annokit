@@ -9,11 +9,12 @@ add_executable(annokit_tests
     unit/test_random.cpp
     unit/test_resource_archive.cpp
     unit/test_script_sandbox.cpp
+    unit/test_update.cpp
     unit/test_wav_mixer.cpp
     unit/test_webm.cpp
     unit/test_zip_archive.cpp
 )
-target_link_libraries(annokit_tests PRIVATE annokit::core annokit::audio annokit::video annokit::net annokit::script)
+target_link_libraries(annokit_tests PRIVATE annokit::core annokit::audio annokit::video annokit::net annokit::script annokit::update)
 # The Bink tests reach the decoder's internal headers.
 target_include_directories(annokit_tests PRIVATE "${PROJECT_SOURCE_DIR}/modules/video/src")
 target_compile_definitions(annokit_tests PRIVATE ANNOKIT_TEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/data")

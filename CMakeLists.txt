@@ -52,6 +52,7 @@ add_subdirectory(third_party/dr_flac)
 add_subdirectory(third_party/lua)
 add_subdirectory(third_party/dav1d)
 add_subdirectory(third_party/opus)
+add_subdirectory(third_party/monocypher)
 add_subdirectory(modules)
 
 if(ANNOKIT_BUILD_TESTS)
