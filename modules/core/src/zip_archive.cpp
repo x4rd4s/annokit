@@ -20,6 +20,7 @@ constexpr std::size_t kMaxComment = 0xFFFF;
 constexpr std::uint16_t kEncrypted = 1U << 0;
 constexpr std::uint16_t kStored = 0;
 constexpr std::uint16_t kDeflate = 8;
+constexpr std::uint16_t kMadeOnUnix = 3;  ///< the high byte of "made by": the external attributes hold st_mode
 
 Error damaged(const std::string& why) {
     return Error{ErrorCode::InvalidFormat, "zip archive: " + why};
@@ -81,7 +82,8 @@ Result<std::vector<ZipEntry>> read_zip(std::span<const std::uint8_t> archive, co
         if (!central.has(kCentralSize) || central.u32() != kCentralSignature) {
             return damaged("a damaged central directory");
         }
-        (void)central.skip(4);  // made by, needed
+        const auto made_by = central.u16();
+        (void)central.skip(2);  // version needed
         const auto flags = central.u16();
         const auto method = central.u16();
         (void)central.skip(4);  // time, date
@@ -91,15 +93,19 @@ Result<std::vector<ZipEntry>> read_zip(std::span<const std::uint8_t> archive, co
         const auto name_length = central.u16();
         const auto extra_length = central.u16();
         const auto comment_length = central.u16();
-        (void)central.skip(8);  // disk, internal and external attributes
+        (void)central.skip(4);  // disk, internal attributes
+        const auto external = central.u32();
         const auto local = central.u32();
         const auto name = central.bytes(name_length.value_or(0));
-        if (!flags || !method || !crc || !packed || !size || !local || !name ||
+        if (!made_by || !external || !flags || !method || !crc || !packed || !size || !local || !name ||
             !central.skip(std::size_t{extra_length.value_or(0)} + comment_length.value_or(0))) {
             return damaged("a damaged central directory");
         }
         ZipEntry entry;
         entry.path.assign(name->begin(), name->end());
+        if ((*made_by >> 8) == kMadeOnUnix) {
+            entry.unix_mode = *external >> 16;
+        }
         if (entry.path.ends_with('/')) {
             continue;  // a folder
         }

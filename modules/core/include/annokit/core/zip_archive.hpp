@@ -18,6 +18,9 @@ namespace annokit::core {
 struct ZipEntry {
     std::string path;  ///< as the archive names it, '/' between folders
     std::vector<std::uint8_t> bytes;
+    /// The file's Unix mode (kind and permissions, as st_mode) when the archive was made on a Unix
+    /// system and says it; 0 otherwise.
+    std::uint32_t unix_mode = 0;
 };
 
 /// What an archive may hold at most, against archives made to cost memory.

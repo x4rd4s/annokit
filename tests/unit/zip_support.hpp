@@ -14,7 +14,8 @@ namespace annokit::test {
 struct ZipFile {
     std::string path;
     std::string text;
-    bool deflate = false;  ///< packed with deflate (needs zlib), else stored
+    bool deflate = false;         ///< packed with deflate (needs zlib), else stored
+    std::uint32_t unix_mode = 0;  ///< written as made on Unix with this mode, if not 0
 };
 
 /// A zip archive of these files, as a zip tool writes it: local headers, the central directory and
@@ -57,13 +58,13 @@ inline std::vector<std::uint8_t> make_zip(const std::vector<ZipFile>& files) {
         out.insert(out.end(), f.path.begin(), f.path.end());
         out.insert(out.end(), data.begin(), data.end());
         u32(central, 0x02014B50);
-        u16(central, 20);  // made by
+        u16(central, f.unix_mode != 0 ? (3U << 8) | 20 : 20);  // made by (Unix: the mode is in the attributes)
         header(central);
-        u16(central, 0);  // extra
-        u16(central, 0);  // comment
-        u16(central, 0);  // disk
-        u16(central, 0);  // internal attributes
-        u32(central, 0);  // external attributes
+        u16(central, 0);                  // extra
+        u16(central, 0);                  // comment
+        u16(central, 0);                  // disk
+        u16(central, 0);                  // internal attributes
+        u32(central, f.unix_mode << 16);  // external attributes
         u32(central, offset);
         central.insert(central.end(), f.path.begin(), f.path.end());
     }

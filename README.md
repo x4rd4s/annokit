@@ -3,7 +3,7 @@
 Shared, game-independent building blocks for C++20 game engines on SDL3: files and checksums,
 data files, PNG, zip and resource archive reading, a deterministic random number generator, a
 window layer, sound decoding and mixing, Smacker, Bink 2 and WebM video decoding, reliable UDP
-transport and a sandboxed Lua host.
+transport, a sandboxed Lua host and self-updates from signed release manifests.
 
 Licensed under GPL-3.0-or-later.
 
@@ -16,6 +16,7 @@ Licensed under GPL-3.0-or-later.
 | `annokit::video` | `annokit/video/` | Smacker, Bink 2 and WebM (AV1 + Opus) decoding | audio, core |
 | `annokit::net` | `annokit/net/` | A message transport: ENet over UDP, and a loopback with simulated loss and delay for tests | core |
 | `annokit::script` | `annokit/script/` | A sandboxed Lua 5.4 host with instruction and memory limits | core |
+| `annokit::update` | `annokit/update/` | Versions, Ed25519-signed update manifests, zip and tar.gz release packages, HTTPS through the system (WinHTTP, libcurl loaded at run time), installing with the previous version kept, restart | core |
 | `annokit::platform` | `annokit/platform/` | SDL3 window, icons and audio device (`ANNOKIT_BUILD_PLATFORM=ON`) | core, SDL3 |
 
 The modules may include only the modules they depend on; the `layering` test checks that.

@@ -9,6 +9,7 @@
 #   video     -> audio, core
 #   net       -> core
 #   script    -> core
+#   update    -> core
 #   platform  -> core, SDL3
 #
 # Only platform may include SDL3.
@@ -22,10 +23,11 @@ set(allowed_audio "audio;core")
 set(allowed_video "video;audio;core")
 set(allowed_net "net;core")
 set(allowed_script "script;core")
+set(allowed_update "update;core")
 set(allowed_platform "platform;core;SDL3")
 
 set(violations "")
-foreach(module core audio video net script platform)
+foreach(module core audio video net script update platform)
     file(GLOB_RECURSE files "${SOURCE_DIR}/modules/${module}/*.cpp" "${SOURCE_DIR}/modules/${module}/*.hpp")
     foreach(file IN LISTS files)
         file(STRINGS "${file}" includes REGEX "^[ \t]*#[ \t]*include[ \t]*[<\"](annokit/[a-z_]+/|SDL3/)")
