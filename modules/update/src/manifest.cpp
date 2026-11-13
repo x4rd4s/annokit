@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "annokit/update/manifest.hpp"
 
+#include <variant>
+
 #include "annokit/core/data_file.hpp"
 #include "annokit/core/text.hpp"
 
@@ -13,6 +15,29 @@ using core::make_error;
 
 core::Error malformed(const std::string& why) {
     return make_error(ErrorCode::InvalidFormat, "update manifest: " + why);
+}
+
+/// The string or integer value of `key`, by value: nothing if it is missing or of another kind.
+std::optional<std::string> text_value(const core::DataTable& table, std::string_view key) {
+    const core::DataValue* v = table.find(key);
+    if (v == nullptr) {
+        return std::nullopt;
+    }
+    if (const auto* text = std::get_if<std::string>(&v->value)) {
+        return *text;
+    }
+    return std::nullopt;
+}
+
+std::optional<std::int64_t> integer_value(const core::DataTable& table, std::string_view key) {
+    const core::DataValue* v = table.find(key);
+    if (v == nullptr) {
+        return std::nullopt;
+    }
+    if (const auto* number = std::get_if<std::int64_t>(&v->value)) {
+        return *number;
+    }
+    return std::nullopt;
 }
 
 bool is_https(std::string_view url) noexcept {
@@ -40,47 +65,47 @@ core::Result<Manifest> parse_manifest(std::string_view text) {
     for (const core::DataTable& table : *tables) {
         if (table.name.empty()) {
             have_head = true;
-            const core::DataValue* format = table.find("format");
-            if (format == nullptr || format->integer() == nullptr) {
+            const auto format = integer_value(table, "format");
+            if (!format) {
                 return malformed("no format");
             }
-            if (*format->integer() != kManifestFormat) {
-                return make_error(ErrorCode::Unsupported,
-                                  "update manifest: format " + std::to_string(*format->integer()) +
-                                      " (this program reads format " + std::to_string(kManifestFormat) + ")");
+            if (*format != kManifestFormat) {
+                return make_error(ErrorCode::Unsupported, "update manifest: format " + std::to_string(*format) +
+                                                              " (this program reads format " +
+                                                              std::to_string(kManifestFormat) + ")");
             }
-            const core::DataValue* version = table.find("version");
-            const auto parsed =
-                version != nullptr && version->string() != nullptr ? parse_version(*version->string()) : std::nullopt;
+            const auto version = text_value(table, "version");
+            const auto parsed = version ? parse_version(*version) : std::nullopt;
             if (!parsed) {
                 return malformed("no version, or not one of the form 1.2.3");
             }
             manifest.version = *parsed;
-            if (const core::DataValue* notes = table.find("notes"); notes != nullptr) {
-                if (notes->string() == nullptr || !is_https(*notes->string())) {
+            if (table.find("notes") != nullptr) {
+                const auto notes = text_value(table, "notes");
+                if (!notes || !is_https(*notes)) {
                     return malformed("the notes are not an https address");
                 }
-                manifest.notes = *notes->string();
+                manifest.notes = *notes;
             }
             continue;
         }
         ManifestPackage package;
         package.platform = table.name;
-        const core::DataValue* url = table.find("url");
-        const core::DataValue* size = table.find("size");
-        const core::DataValue* sum = table.find("sha256");
-        if (url == nullptr || url->string() == nullptr || !is_https(*url->string())) {
+        const auto url = text_value(table, "url");
+        const auto size = integer_value(table, "size");
+        const auto sum = text_value(table, "sha256");
+        if (!url || !is_https(*url)) {
             return malformed("[" + table.name + "]: the url is missing or not an https address");
         }
-        if (size == nullptr || size->integer() == nullptr || *size->integer() <= 0) {
+        if (!size || *size <= 0) {
             return malformed("[" + table.name + "]: the size is missing");
         }
-        const auto hash = sum != nullptr && sum->string() != nullptr ? from_hex<32>(*sum->string()) : std::nullopt;
+        const auto hash = sum ? from_hex<32>(*sum) : std::nullopt;
         if (!hash) {
             return malformed("[" + table.name + "]: the sha256 is missing or not 64 hexadecimal digits");
         }
-        package.url = *url->string();
-        package.size = static_cast<std::uint64_t>(*size->integer());
+        package.url = *url;
+        package.size = static_cast<std::uint64_t>(*size);
         package.sha256 = *hash;
         manifest.packages.push_back(std::move(package));
     }
