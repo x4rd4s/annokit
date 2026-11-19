@@ -32,7 +32,13 @@
 #pragma warning(push)
 #pragma warning(disable:4067)    /* newline for __has_include_next */
 
-#if defined(__clang__) && __has_include_next(<stdatomic.h>)
+/* annokit: MSVC 14.52 evaluates __has_include_next after a false defined(__clang__) too. */
+#if defined(__clang__)
+#  if __has_include_next(<stdatomic.h>)
+#    define ANNOKIT_CLANG_STDATOMIC 1
+#  endif
+#endif
+#if defined(ANNOKIT_CLANG_STDATOMIC)
    /* use the clang stdatomic.h with clang-cl*/
 #  include_next <stdatomic.h>
 #else /* ! stdatomic.h */
