@@ -12,7 +12,7 @@ Licensed under GPL-3.0-or-later.
 | Target | Include prefix | Contents | Depends on |
 |---|---|---|---|
 | `annokit::core` | `annokit/core/` | `Result<T>`, bounded byte reading, files, CRC, zlib/PNG/zip/resource archive reading, data files, `Random` (PCG32) | (zlib, optional) |
-| `annokit::audio` | `annokit/audio/` | WAVE/IMA ADPCM, Ogg Vorbis and FLAC decoding, a mixer with groups | core |
+| `annokit::audio` | `annokit/audio/` | WAVE (PCM, float, Microsoft and IMA ADPCM), Ogg Vorbis and FLAC decoding, a mixer with groups | core |
 | `annokit::video` | `annokit/video/` | Smacker, Bink 2 and WebM (AV1 + Opus) decoding | audio, core |
 | `annokit::net` | `annokit/net/` | A message transport: ENet over UDP, and a loopback with simulated loss and delay for tests | core |
 | `annokit::script` | `annokit/script/` | A sandboxed Lua 5.4 host with instruction and memory limits | core |
