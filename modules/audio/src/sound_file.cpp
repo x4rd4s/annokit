@@ -107,7 +107,28 @@ core::Result<Pcm> decode_sound(std::span<const std::uint8_t> bytes) {
         return decode_flac(bytes);
     }
     if (starts_with(bytes, "RIFF")) {
-        return decode_wav(bytes);
+        auto pcm = decode_wav(bytes);
+        if (pcm && pcm->rate > kMaxSoundRate) {
+            return make_error(ErrorCode::Unsupported, "WAVE: " + std::to_string(pcm->rate) + " Hz");
+        }
+        if (pcm) {
+            // Cut at kMaxSoundSeconds as the other kinds are.
+            const std::size_t max = std::size_t{pcm->rate} * kMaxSoundSeconds * pcm->channels;
+            if (pcm->samples.size() > max) {
+                pcm->samples.resize(max);
+            }
+        }
+        return pcm;
+    }
+    return make_error(ErrorCode::Unsupported, "not a sound file (WAV, Ogg Vorbis or FLAC)");
+}
+
+core::Status check_sound_head(std::span<const std::uint8_t> head) {
+    if (starts_with(head, "OggS") || starts_with(head, "fLaC")) {
+        return core::Ok{};
+    }
+    if (starts_with(head, "RIFF")) {
+        return check_wav_head(head);
     }
     return make_error(ErrorCode::Unsupported, "not a sound file (WAV, Ogg Vorbis or FLAC)");
 }

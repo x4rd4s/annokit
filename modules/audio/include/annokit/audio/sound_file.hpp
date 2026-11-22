@@ -4,6 +4,7 @@
 // file's first bytes, not by its name.
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <span>
 
@@ -20,5 +21,13 @@ inline constexpr std::uint32_t kMaxSoundRate = 192000;
 /// Decodes a WAVE, Ogg Vorbis or FLAC file to 16-bit samples. A file of more than two channels
 /// keeps the first two (front left and right); one longer than kMaxSoundSeconds is cut there.
 [[nodiscard]] core::Result<Pcm> decode_sound(std::span<const std::uint8_t> bytes);
+
+/// How many bytes of a file check_sound_head() wants to see.
+inline constexpr std::size_t kSoundHeadBytes = 4096;
+
+/// Whether the first bytes of a file (up to kSoundHeadBytes) are those of a sound file
+/// decode_sound() can read: the kind by its first bytes, for WAVE also the encoding
+/// (check_wav_head). Ogg Vorbis and FLAC pass on their first bytes alone.
+[[nodiscard]] core::Status check_sound_head(std::span<const std::uint8_t> head);
 
 }  // namespace annokit::audio
